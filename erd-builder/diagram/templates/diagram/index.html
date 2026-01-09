@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>ERD Mini-Diagram Builder</h1>
+
+<div class="form-group" x-data="{ customConnection: false }" x-init="{% if last_connection %}setTimeout(() => document.getElementById('load-schema-btn').click(), 100){% endif %}">
+    <label for="connection">Database Connection</label>
+    {% if connections %}
+        <select id="connection"
+                x-model="customConnection ? 'custom' : $el.value"
+                @change="customConnection = ($event.target.value === 'custom')">
+            <option value="">-- Select a connection --</option>
+            {% for name, url in connections.items %}
+                <option value="{{ url }}"{% if last_connection == url %} selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+            <option value="custom">Custom connection string...</option>
+        </select>
+
+        <div x-show="customConnection" style="margin-top: 10px;">
+            <input type="text"
+                   id="custom-connection"
+                   placeholder="postgres://user:pass@host:port/dbname"
+                   x-ref="customInput">
+        </div>
+    {% else %}
+        <input type="text"
+               id="custom-connection"
+               placeholder="postgres://user:pass@host:port/dbname">
+        <small style="display: block; margin-top: 5px; color: #7f8c8d;">
+            Set POSTGRES_CONNECTIONS environment variable to configure preset connections
+        </small>
+    {% endif %}
+
+    <button id="load-schema-btn"
+            style="margin-top: 10px;"
+            hx-post="{% url 'diagram:load_schema' %}"
+            hx-target="#schema-container"
+            hx-indicator="#loading"
+            hx-vals='js:{
+                connection_string: document.getElementById("custom-connection") &&
+                                  document.getElementById("custom-connection").offsetParent !== null ?
+                                  document.getElementById("custom-connection").value :
+                                  document.getElementById("connection").value
+            }'>
+        Load Schema
+        <span id="loading" class="htmx-indicator"><span class="spinner"></span></span>
+    </button>
+</div>
+
+<div id="schema-container">
+    <!-- Schema content will be loaded here -->
+</div>
+{% endblock %}

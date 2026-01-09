@@ -1,0 +1,58 @@
+<div class="layout">
+    <div class="panel" x-data="{ search: '' }">
+        <h2>Select Tables & Columns</h2>
+        <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 15px;">
+            Click tables to select. Key columns (PK, FK, UK) are auto-selected.
+        </p>
+
+        <input type="text"
+               x-model="search"
+               placeholder="Search tables..."
+               style="margin-bottom: 15px;">
+
+        <div id="table-list">
+            {% for table_name, table_info in tables.items %}
+                {% with table_id=table_name|slugify %}
+                <div class="table-item" id="table-{{ table_id }}"
+                     x-show="!search || '{{ table_name }}'.toLowerCase().includes(search.toLowerCase())">
+                    <div class="table-header">
+                        <input type="checkbox"
+                               id="check-{{ table_id }}"
+                               hx-post="{% url 'diagram:toggle_table' %}"
+                               hx-target="#columns-{{ table_id }}"
+                               hx-vals='{"table_name": "{{ table_name }}", "selected": "true"}'
+                               hx-trigger="change"
+                               onchange="if (!this.checked) {
+                                   htmx.ajax('POST', '{% url 'diagram:toggle_table' %}', {
+                                       target: '#columns-{{ table_id }}',
+                                       values: {table_name: '{{ table_name }}', selected: 'false'}
+                                   });
+                                   document.getElementById('table-{{ table_id }}').classList.remove('selected');
+                               } else {
+                                   document.getElementById('table-{{ table_id }}').classList.add('selected');
+                               }">
+                        <label for="check-{{ table_id }}" class="table-name">{{ table_name }}</label>
+                    </div>
+                    <div id="columns-{{ table_id }}"></div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Mermaid Diagram</h2>
+
+        <button class="btn-success"
+                hx-post="{% url 'diagram:generate_diagram' %}"
+                hx-target="#diagram-output">
+            Generate Diagram
+        </button>
+
+        <div id="diagram-output" class="output-area">
+            <p style="color: #7f8c8d; font-size: 14px;">
+                Select tables and click "Generate Diagram" to see the output.
+            </p>
+        </div>
+    </div>
+</div>

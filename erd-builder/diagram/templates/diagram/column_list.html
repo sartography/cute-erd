@@ -1,0 +1,34 @@
+<div class="column-list">
+    {% for column in table_info.columns %}
+        <div class="column-item">
+            <input type="checkbox"
+                   id="col-{{ table_name }}-{{ column.name }}"
+                   {% if column.name in selected_columns %}checked{% endif %}
+                   hx-post="{% url 'diagram:toggle_column' %}"
+                   hx-swap="none"
+                   hx-vals='{"table_name": "{{ table_name }}", "column_name": "{{ column.name }}", "selected": "true"}'
+                   hx-trigger="change"
+                   onchange="if (!this.checked) {
+                       htmx.ajax('POST', '{% url 'diagram:toggle_column' %}', {
+                           swap: 'none',
+                           values: {table_name: '{{ table_name }}', column_name: '{{ column.name }}', selected: 'false'}
+                       });
+                   }">
+            <label for="col-{{ table_name }}-{{ column.name }}">
+                <span class="column-name">{{ column.name }}</span>
+                <span class="column-type">{{ column.type }}</span>
+                {% if column.name in table_info.primary_keys %}
+                    <span class="badge badge-pk">PK</span>
+                {% endif %}
+                {% for fk in table_info.foreign_keys %}
+                    {% if fk.column == column.name %}
+                        <span class="badge badge-fk">FK</span>
+                    {% endif %}
+                {% endfor %}
+                {% if column.name in table_info.unique_keys and column.name not in table_info.primary_keys %}
+                    <span class="badge badge-uk">UK</span>
+                {% endif %}
+            </label>
+        </div>
+    {% endfor %}
+</div>

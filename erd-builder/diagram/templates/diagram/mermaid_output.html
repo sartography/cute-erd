@@ -1,0 +1,18 @@
+<div class="mermaid-code">{{ mermaid_code }}</div>
+
+<div class="button-group">
+    <button onclick="navigator.clipboard.writeText(document.querySelector('.mermaid-code').textContent).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = originalText, 2000);
+    })">
+        Copy to Clipboard
+    </button>
+
+    <a href="{% url 'diagram:download_diagram' %}" style="text-decoration: none;">
+        <button type="button" class="btn-secondary">
+            Download .mmd File
+        </button>
+    </a>
+</div>

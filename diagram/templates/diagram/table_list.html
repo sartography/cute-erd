@@ -50,16 +50,20 @@
 
     <div class="panel">
         <h2>Mermaid Diagram</h2>
+        <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 15px;">
+            Diagram updates automatically as you select tables.
+        </p>
 
         <button class="btn-success"
                 hx-post="{% url 'diagram:generate_diagram' %}"
-                hx-target="#diagram-output">
+                hx-target="#diagram-output"
+                style="display: none;">
             Generate Diagram
         </button>
 
         <div id="diagram-output" class="output-area">
             <p style="color: #7f8c8d; font-size: 14px;">
-                Select tables and click "Generate Diagram" to see the output.
+                Select tables to see the diagram.
             </p>
         </div>
     </div>

@@ -81,9 +81,13 @@ def toggle_table(request):
 
     # Return column list + OOB diagram update
     if is_selected:
+        # Extract foreign key column names for template
+        foreign_key_columns = [fk['column'] for fk in table_info.get('foreign_keys', [])]
+
         return render(request, 'diagram/toggle_response.html', {
             'table_name': table_name,
             'table_info': table_info,
+            'foreign_key_columns': foreign_key_columns,
             'selected_columns': selected_tables.get(table_name, []),
             'mermaid_code': mermaid_code,
             'has_selection': bool(selected_tables)
@@ -98,11 +102,12 @@ def toggle_table(request):
 
 @require_http_methods(["POST"])
 def toggle_column(request):
-    """Toggle column selection."""
+    """Toggle column selection and return updated diagram."""
     table_name = request.POST.get('table_name')
     column_name = request.POST.get('column_name')
     is_selected = request.POST.get('selected') == 'true'
 
+    schema = request.session.get('schema', {})
     selected_tables = request.session.get('selected_tables', {})
 
     if table_name not in selected_tables:
@@ -118,7 +123,18 @@ def toggle_column(request):
     request.session['selected_tables'] = selected_tables
     request.session.modified = True
 
-    return HttpResponse("")
+    # Generate updated diagram
+    mermaid_code = ""
+    if selected_tables:
+        try:
+            mermaid_code = generate_mermaid(selected_tables, schema)
+        except:
+            pass
+
+    return render(request, 'diagram/diagram_only.html', {
+        'mermaid_code': mermaid_code,
+        'has_selection': bool(selected_tables)
+    })
 
 
 @require_http_methods(["POST"])

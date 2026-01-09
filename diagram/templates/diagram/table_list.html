@@ -25,15 +25,17 @@
                                hx-vals='{"table_name": "{{ table_name }}", "selected": "true"}'
                                hx-trigger="change"
                                @click.stop
-                               onchange="if (!this.checked) {
-                                   htmx.ajax('POST', '{% url 'diagram:toggle_table' %}', {
-                                       target: '#columns-{{ table_id }}',
-                                       values: {table_name: '{{ table_name }}', selected: 'false'}
-                                   });
-                                   document.getElementById('table-{{ table_id }}').classList.remove('selected');
-                               } else {
-                                   document.getElementById('table-{{ table_id }}').classList.add('selected');
-                               }">
+                               onchange="
+                                   this.setAttribute('hx-vals', JSON.stringify({
+                                       table_name: '{{ table_name }}',
+                                       selected: String(this.checked)
+                                   }));
+                                   if (this.checked) {
+                                       document.getElementById('table-{{ table_id }}').classList.add('selected');
+                                   } else {
+                                       document.getElementById('table-{{ table_id }}').classList.remove('selected');
+                                   }
+                               ">
                         <label for="check-{{ table_id }}" class="table-name" @click.stop>{{ table_name }}</label>
                         <button type="button"
                                 @click.stop="expanded = !expanded"
@@ -53,13 +55,6 @@
         <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 15px;">
             Diagram updates automatically as you select tables.
         </p>
-
-        <button class="btn-success"
-                hx-post="{% url 'diagram:generate_diagram' %}"
-                hx-target="#diagram-output"
-                style="display: none;">
-            Generate Diagram
-        </button>
 
         <div id="diagram-output" class="output-area">
             <p style="color: #7f8c8d; font-size: 14px;">

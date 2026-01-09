@@ -1,0 +1,35 @@
+<div id="diagram-output" class="output-area" hx-swap-oob="true">
+    {% if has_selection %}
+        <div style="background: white; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
+            <pre class="mermaid">{{ mermaid_code }}</pre>
+        </div>
+
+        <details style="margin-bottom: 20px;">
+            <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 4px; font-weight: 500;">
+                Show Mermaid Code
+            </summary>
+            <div class="mermaid-code" style="margin-top: 10px;">{{ mermaid_code }}</div>
+        </details>
+
+        <div class="button-group">
+            <button onclick="navigator.clipboard.writeText(`{{ mermaid_code|escapejs }}`).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = originalText, 2000);
+            })">
+                Copy Code to Clipboard
+            </button>
+
+            <a href="{% url 'diagram:download_diagram' %}" style="text-decoration: none;">
+                <button type="button" class="btn-secondary">
+                    Download .mmd File
+                </button>
+            </a>
+        </div>
+    {% else %}
+        <p style="color: #7f8c8d; font-size: 14px;">
+            Select tables to see the diagram.
+        </p>
+    {% endif %}
+</div>

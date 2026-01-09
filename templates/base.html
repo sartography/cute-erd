@@ -7,6 +7,11 @@
     <title>ERD Mini-Diagram Builder</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+        window.mermaid = mermaid;
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.body.addEventListener('htmx:configRequest', (event) => {
@@ -14,17 +19,27 @@
             });
 
             // Auto-generate diagram when tables are toggled
-            document.body.addEventListener('htmx:afterSettle', (event) => {
+            document.body.addEventListener('htmx:afterRequest', (event) => {
                 // Check if this was a table toggle or column toggle
                 if (event.detail.pathInfo.requestPath.includes('/toggle-table/') ||
                     event.detail.pathInfo.requestPath.includes('/toggle-column/')) {
-                    // Use next tick to ensure session is fully committed
-                    setTimeout(() => {
-                        const generateBtn = document.querySelector('[hx-post*="/generate/"]');
-                        if (generateBtn) {
-                            generateBtn.click();
-                        }
-                    }, 0);
+                    // Trigger after request completes
+                    const generateBtn = document.querySelector('[hx-post*="/generate/"]');
+                    if (generateBtn) {
+                        generateBtn.click();
+                    }
+                }
+            });
+
+            // Re-render Mermaid diagrams after HTMX swaps in new content
+            document.body.addEventListener('htmx:afterSwap', (event) => {
+                if (event.detail.pathInfo.requestPath.includes('/generate/')) {
+                    // Re-initialize Mermaid for the new diagram
+                    if (window.mermaid) {
+                        window.mermaid.run({
+                            querySelector: '.mermaid'
+                        });
+                    }
                 }
             });
         });

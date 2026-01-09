@@ -190,6 +190,9 @@ def generate_mermaid(selected_tables: Dict[str, List[str]], schema: Dict) -> str
                     col_type = col_info['type']
                     break
 
+            # Replace spaces with underscores for Mermaid compatibility
+            col_type = col_type.replace(' ', '_')
+
             # Determine column markers (use sets to avoid duplicates)
             markers = []
             if col in primary_keys:
@@ -199,7 +202,7 @@ def generate_mermaid(selected_tables: Dict[str, List[str]], schema: Dict) -> str
             if col in unique_keys and col not in primary_keys:
                 markers.append("UK")
 
-            marker_str = " ".join(markers)
+            marker_str = ",".join(markers)
             if marker_str:
                 lines.append(f"        {col_type} {col} {marker_str}")
             else:

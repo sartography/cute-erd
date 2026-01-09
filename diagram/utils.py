@@ -47,8 +47,14 @@ def get_database_schema(connection_string: str) -> Dict:
 
     # Initialize all tables
     tables = [(row[0], row[1]) for row in cursor.fetchall()]
+
+    # Check if there's only one schema
+    unique_schemas = set(row[0] for row in tables)
+    use_schema_prefix = len(unique_schemas) > 1
+
     for table_schema, table_name in tables:
-        qualified_name = f"{table_schema}.{table_name}"
+        # Only use schema prefix if there are multiple schemas
+        qualified_name = f"{table_schema}.{table_name}" if use_schema_prefix else table_name
         schema['tables'][qualified_name] = {
             'columns': [],
             'primary_keys': [],
@@ -65,7 +71,7 @@ def get_database_schema(connection_string: str) -> Dict:
     """)
 
     for table_schema, table_name, col_name, data_type, max_length in cursor.fetchall():
-        qualified_name = f"{table_schema}.{table_name}"
+        qualified_name = f"{table_schema}.{table_name}" if use_schema_prefix else table_name
         if qualified_name in schema['tables']:
             type_str = data_type
             if max_length:
@@ -88,7 +94,7 @@ def get_database_schema(connection_string: str) -> Dict:
     """)
 
     for table_schema, table_name, col_name in cursor.fetchall():
-        qualified_name = f"{table_schema}.{table_name}"
+        qualified_name = f"{table_schema}.{table_name}" if use_schema_prefix else table_name
         if qualified_name in schema['tables']:
             schema['tables'][qualified_name]['primary_keys'].append(col_name)
 
@@ -112,8 +118,8 @@ def get_database_schema(connection_string: str) -> Dict:
     """)
 
     for table_schema, table_name, col_name, foreign_schema, foreign_table, foreign_column in cursor.fetchall():
-        qualified_name = f"{table_schema}.{table_name}"
-        foreign_qualified = f"{foreign_schema}.{foreign_table}"
+        qualified_name = f"{table_schema}.{table_name}" if use_schema_prefix else table_name
+        foreign_qualified = f"{foreign_schema}.{foreign_table}" if use_schema_prefix else foreign_table
 
         if qualified_name in schema['tables']:
             schema['tables'][qualified_name]['foreign_keys'].append({
@@ -142,7 +148,7 @@ def get_database_schema(connection_string: str) -> Dict:
     """)
 
     for table_schema, table_name, col_name in cursor.fetchall():
-        qualified_name = f"{table_schema}.{table_name}"
+        qualified_name = f"{table_schema}.{table_name}" if use_schema_prefix else table_name
         if qualified_name in schema['tables']:
             schema['tables'][qualified_name]['unique_keys'].append(col_name)
 

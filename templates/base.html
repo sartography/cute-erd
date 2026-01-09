@@ -14,19 +14,17 @@
             });
 
             // Auto-generate diagram when tables are toggled
-            document.body.addEventListener('htmx:afterSwap', (event) => {
+            document.body.addEventListener('htmx:afterSettle', (event) => {
                 // Check if this was a table toggle or column toggle
                 if (event.detail.pathInfo.requestPath.includes('/toggle-table/') ||
                     event.detail.pathInfo.requestPath.includes('/toggle-column/')) {
-                    // Automatically trigger diagram generation with a small delay
-                    // to ensure the server has finished processing the toggle
+                    // Use next tick to ensure session is fully committed
                     setTimeout(() => {
                         const generateBtn = document.querySelector('[hx-post*="/generate/"]');
                         if (generateBtn) {
-                            // Use native click to reliably trigger HTMX
                             generateBtn.click();
                         }
-                    }, 50);
+                    }, 0);
                 }
             });
         });

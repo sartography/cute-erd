@@ -1,10 +1,11 @@
 [project]
-name = "erd-builder"
+name = "cute-erd"
 version = "0.1.0"
-description = "Add your description here"
+description = "Create focused Mermaid ERD diagrams from PostgreSQL databases"
 readme = "README.md"
-requires-python = ">=3.11"
+license = "MIT"
+requires-python = ">=3.13"
 dependencies = [
-    "django>=5.2.10",
+    "django>=6.0.1",
     "psycopg2-binary>=2.9.11",
 ]

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>ERD Mini-Diagram Builder</h1>
+<h1>Cute ERD</h1>
 
 <div class="form-group" x-data="{ customConnection: false }" x-init="{% if last_connection %}setTimeout(() => document.getElementById('load-schema-btn').click(), 100){% endif %}">
     <label for="connection">Database Connection</label>

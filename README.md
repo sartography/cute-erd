@@ -1,4 +1,4 @@
-# ERD Mini-Diagram Builder
+# Cute ERD
 
 Create focused Mermaid ERD diagrams from PostgreSQL databases. Select tables/columns, auto-selects keys, exports `.mmd` files.
 

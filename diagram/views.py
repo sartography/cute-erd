@@ -42,7 +42,7 @@ def load_schema(request):
 
 @require_http_methods(["POST"])
 def toggle_table(request):
-    """Toggle table selection and return updated column list."""
+    """Toggle table selection and return updated column list + diagram."""
     table_name = request.POST.get('table_name')
     is_selected = request.POST.get('selected') == 'true'
 
@@ -71,14 +71,29 @@ def toggle_table(request):
     request.session['selected_tables'] = selected_tables
     request.session.modified = True
 
+    # Generate diagram output
+    mermaid_code = ""
+    if selected_tables:
+        try:
+            mermaid_code = generate_mermaid(selected_tables, schema)
+        except:
+            pass
+
+    # Return column list + OOB diagram update
     if is_selected:
-        return render(request, 'diagram/column_list.html', {
+        return render(request, 'diagram/toggle_response.html', {
             'table_name': table_name,
             'table_info': table_info,
-            'selected_columns': selected_tables.get(table_name, [])
+            'selected_columns': selected_tables.get(table_name, []),
+            'mermaid_code': mermaid_code,
+            'has_selection': bool(selected_tables)
         })
     else:
-        return HttpResponse("")
+        # Just return the diagram update
+        return render(request, 'diagram/diagram_only.html', {
+            'mermaid_code': mermaid_code,
+            'has_selection': bool(selected_tables)
+        })
 
 
 @require_http_methods(["POST"])

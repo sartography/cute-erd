@@ -175,9 +175,9 @@ def generate_mermaid(selected_tables: Dict[str, List[str]], schema: Dict) -> str
             continue
 
         table_info = schema['tables'].get(table_name, {})
-        primary_keys = table_info.get('primary_keys', [])
-        foreign_keys = [fk['column'] for fk in table_info.get('foreign_keys', [])]
-        unique_keys = table_info.get('unique_keys', [])
+        primary_keys = set(table_info.get('primary_keys', []))
+        foreign_keys = set(fk['column'] for fk in table_info.get('foreign_keys', []))
+        unique_keys = set(table_info.get('unique_keys', []))
 
         mermaid_table_name = mermaid_name(table_name)
         lines.append(f"    {mermaid_table_name} {{")
@@ -190,7 +190,7 @@ def generate_mermaid(selected_tables: Dict[str, List[str]], schema: Dict) -> str
                     col_type = col_info['type']
                     break
 
-            # Determine column markers
+            # Determine column markers (use sets to avoid duplicates)
             markers = []
             if col in primary_keys:
                 markers.append("PK")
